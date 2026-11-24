@@ -52,15 +52,6 @@ The folder is still named `fbneo` so that saves from earlier versions keep worki
 
 Open an [issue](../../issues) and attach the log from **Settings → Help and about → Last game log**. Please mention your phone model, Android version and the game.
 
-## Building from source
-
-The repository keeps the app's complete source as `project.zip`; pushing a new `project.zip` makes GitHub Actions build and publish the APK.
-
-1. `project.zip` contains the Android project, `build-android.sh`, the MAME host code and `patches/fbneo-android.patch`.
-2. The workflow (`.github/workflows/build.yml`) unpacks it and runs `build-android.sh`, which fetches FinalBurn Neo at a pinned commit, applies the patch, builds FBNeo and SDL2 for arm64 and packages the APK.
-3. The result is published as the `latest` release, named `fbn4droid.apk`.
-
-To build locally you need a Linux machine with the Android SDK and NDK, JDK 17, Gradle 8.7+, CMake, Ninja, Perl, GCC/G++ and Git. Unzip `project.zip` and run `bash build-android.sh`.
 
 ## Credits
 
