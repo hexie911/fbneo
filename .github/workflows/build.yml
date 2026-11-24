@@ -1,4 +1,4 @@
-name: Build FBNeo APK
+name: Build fbn4droid APK
 
 on:
   workflow_dispatch:
@@ -37,10 +37,13 @@ jobs:
         working-directory: project
         run: bash build-android.sh
 
+      - name: Name the APK
+        run: cp project/out/FBNeo.apk project/out/fbn4droid.apk
+
       - uses: actions/upload-artifact@v4
         with:
-          name: FBNeo-apk
-          path: project/out/FBNeo.apk
+          name: fbn4droid-apk
+          path: project/out/fbn4droid.apk
 
       - name: Publish release
         env:
@@ -49,5 +52,20 @@ jobs:
           gh release delete latest --yes --cleanup-tag 2>/dev/null || true
           VC=$(grep -oE 'versionCode [0-9]+' project/app/build.gradle | head -1 | grep -oE '[0-9]+')
           VN=$(grep -oE "versionName '[^']+'" project/app/build.gradle | head -1 | cut -d"'" -f2)
-          printf 'versionCode: %s\nversionName: %s\nnotes: Install FBNeo.apk on your phone, or update from inside the app.\n' "$VC" "$VN" > notes.txt
-          gh release create latest project/out/FBNeo.apk --title "fbn4droid v$VN (latest build)" --notes-file notes.txt
+          # what's new: the newest "### v..." section of the project's README
+          awk '/^### v/{buf=""; next} {buf=buf $0 "\n"} END{printf "%s", buf}' project/README.md | sed '/^$/d' | head -14 > changes.txt
+          FIRST=$(head -1 changes.txt | sed -E 's/^- +//' | cut -c1-140)
+          {
+            echo "## fbn4droid v$VN"
+            echo
+            echo "Download **fbn4droid.apk** below and install it. If you already have fbn4droid, use Settings > Help and about > Check for updates instead."
+            echo
+            echo "### What's new"
+            cat changes.txt
+            echo
+            echo "### Build info"
+            echo "versionCode: $VC"
+            echo "versionName: $VN"
+            echo "notes: ${FIRST:-Maintenance release.}"
+          } > notes.txt
+          gh release create latest project/out/fbn4droid.apk --title "fbn4droid v$VN" --notes-file notes.txt
